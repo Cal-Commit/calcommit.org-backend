@@ -1,11 +1,8 @@
 import { Request, Response } from 'express'
 import { validationResult } from 'express-validator'
-import { Client } from '@notionhq/client'
-
-import Announcement from '../models/announcement.model'
 import axios from 'axios'
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY })
+import Announcement from '../models/announcement.model'
 
 export class AnnouncementsController {
     private static async getNotionPageId(notionPageUrl: string) {
