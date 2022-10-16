@@ -1,6 +1,13 @@
 import mongoose, { ObjectId } from 'mongoose'
 
 export interface AnnouncementStructure {
+    _doc: {
+        _id: ObjectId
+        title: string
+        description: string
+        date: string
+        notionRef: string
+    }
     _id?: ObjectId | string
     title: string
     description: string

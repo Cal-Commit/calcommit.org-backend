@@ -1,22 +1,15 @@
 import { Request, Response } from 'express'
 import { validationResult } from 'express-validator'
+import { Client } from '@notionhq/client'
 
 import Announcement from '../models/announcement.model'
+import axios from 'axios'
+
+const notion = new Client({ auth: process.env.NOTION_API_KEY })
 
 export class AnnouncementsController {
     private static async getNotionPageId(notionPageUrl: string) {
-        const notionPageId = notionPageUrl.split('/')[3].split('-').slice(-1)[0]
-        const formattedNotionPageId =
-            notionPageId.slice(0, 8) +
-            '-' +
-            notionPageId.slice(8, 12) +
-            '-' +
-            notionPageId.slice(12, 16) +
-            '-' +
-            notionPageId.slice(16, 20) +
-            '-' +
-            notionPageId.slice(20, 32)
-        return formattedNotionPageId
+        return notionPageUrl.split('/')[3].split('-').slice(-1)[0]
     }
 
     public static async postAnnouncement(req: Request, res: Response) {
@@ -35,8 +28,9 @@ export class AnnouncementsController {
 
         const date = `${mo}/${da}/${yr}`
 
-        const notionPageId =
-            await AnnouncementsController.getNotionPageId(notionUrl)
+        const notionPageId = await AnnouncementsController.getNotionPageId(
+            notionUrl
+        )
 
         const newAnnouncement = new Announcement({
             title,
@@ -66,6 +60,15 @@ export class AnnouncementsController {
             return res.status(404).json({ message: 'Announcement not found' })
         }
 
-        return res.status(200).json(announcement)
+        const response = await axios.get("https://notion-api.splitbee.io/v1/page/" + announcement.notionRef)
+
+        const announcementToSend = {
+            ...announcement._doc,
+            blockMap: response.data
+        }
+
+        return res.status(200).json({
+            announcement: announcementToSend,
+        })
     }
 }

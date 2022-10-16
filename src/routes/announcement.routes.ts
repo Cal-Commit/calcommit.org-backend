@@ -1,5 +1,5 @@
 import express, { Router } from 'express'
-import { body, param } from 'express-validator'
+import { body, query } from 'express-validator'
 
 const router: Router = express.Router()
 
@@ -30,8 +30,9 @@ router.post(
 
 router.get(
     '/get-announcement',
-    [param('id').notEmpty().withMessage('ID is required').isString().trim()],
+    [query('id').notEmpty().withMessage('ID is required').isString().trim()],
     AnnouncementsController.getAnnouncements
 )
 
 export default router
+// cd9aba3c18ac44ada10bc9df2f728595
