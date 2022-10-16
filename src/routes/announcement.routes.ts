@@ -1,5 +1,5 @@
 import express, { Router } from 'express'
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
 
 const router: Router = express.Router()
 
@@ -8,19 +8,30 @@ import { AnnouncementsController } from '../controllers/announcements.controller
 router.post(
     '/post-announcement',
     [
-        body('title').notEmpty().withMessage('Title is empty').isString(),
+        body('title')
+            .notEmpty()
+            .withMessage('Title is empty')
+            .isString()
+            .trim(),
         body('description')
             .notEmpty()
             .withMessage('Description is empty')
-            .isString(),
-        body('notionRef')
+            .isString()
+            .trim(),
+        body('notionUrl')
             .notEmpty()
             .withMessage('NotionRef is empty')
-            .isString(),
+            .isURL()
+            .withMessage('NotionRef is not a valid URL')
+            .trim(),
     ],
     AnnouncementsController.postAnnouncement
 )
 
-router.get('/get-announcements', AnnouncementsController.getAnnouncements)
+router.get(
+    '/get-announcement',
+    [param('id').notEmpty().withMessage('ID is required').isString().trim()],
+    AnnouncementsController.getAnnouncements
+)
 
 export default router

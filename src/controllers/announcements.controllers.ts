@@ -4,6 +4,23 @@ import { validationResult } from 'express-validator'
 import Announcement from '../models/announcement.model'
 
 export class AnnouncementsController {
+    private static async formatNotionPageId(
+        notionPageUrl: string
+    ) {
+        const notionPageId = notionPageUrl.split('/')[3].split('-')[2]
+        const formattedNotionPageId =
+            notionPageId.slice(0, 8) +
+            '-' +
+            notionPageId.slice(8, 12) +
+            '-' +
+            notionPageId.slice(12, 16) +
+            '-' +
+            notionPageId.slice(16, 20) +
+            '-' +
+            notionPageId.slice(20, 32)
+        return formattedNotionPageId
+    }
+
     public static async postAnnouncement(req: Request, res: Response) {
         const errors = validationResult(req)
 
@@ -11,32 +28,39 @@ export class AnnouncementsController {
             return res.status(422).json({ errors: errors.array()[0] })
         }
 
-        const { title, description, notionRef } = req.body
+        const { title, description, notionUrl } = req.body
 
         const nonFormatDate = new Date()
         const yr = nonFormatDate.getFullYear()
         let mo = nonFormatDate.getMonth() + 1
         let da = nonFormatDate.getDate()
 
-        if (da < 10) da = parseInt('0' + da) + da
-        if (mo < 10) mo = parseInt('0' + mo) + mo
-
         const date = `${mo}/${da}/${yr}`
+
+        const formattedNotionPageId = await AnnouncementsController.formatNotionPageId(notionUrl);
 
         const newAnnouncement = new Announcement({
             title,
             description,
             date,
-            notionRef,
+            notionRef: formattedNotionPageId,
         })
 
         await newAnnouncement.save()
 
-        return res.status(201).json(newAnnouncement)
+        return res.status(201).json({
+            announcement: newAnnouncement,
+        })
     }
 
     public static async getAnnouncements(req: Request, res: Response) {
         const { id } = req.query
+
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array()[0] })
+        }
 
         const announcement = await Announcement.findById(id)
         if (!announcement) {
