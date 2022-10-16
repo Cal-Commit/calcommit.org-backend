@@ -4,10 +4,8 @@ import { validationResult } from 'express-validator'
 import Announcement from '../models/announcement.model'
 
 export class AnnouncementsController {
-    private static async formatNotionPageId(
-        notionPageUrl: string
-    ) {
-        const notionPageId = notionPageUrl.split('/')[3].split('-')[2]
+    private static async getNotionPageId(notionPageUrl: string) {
+        const notionPageId = notionPageUrl.split('/')[3].split('-').slice(-1)[0]
         const formattedNotionPageId =
             notionPageId.slice(0, 8) +
             '-' +
@@ -37,13 +35,14 @@ export class AnnouncementsController {
 
         const date = `${mo}/${da}/${yr}`
 
-        const formattedNotionPageId = await AnnouncementsController.formatNotionPageId(notionUrl);
+        const notionPageId =
+            await AnnouncementsController.getNotionPageId(notionUrl)
 
         const newAnnouncement = new Announcement({
             title,
             description,
             date,
-            notionRef: formattedNotionPageId,
+            notionRef: notionPageId,
         })
 
         await newAnnouncement.save()
