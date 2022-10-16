@@ -57,11 +57,13 @@ export class AnnouncementsController {
             return res.status(404).json({ message: 'Announcement not found' })
         }
 
-        const response = await axios.get("https://notion-api.splitbee.io/v1/page/" + announcement.notionRef)
+        const response = await axios.get(
+            'https://notion-api.splitbee.io/v1/page/' + announcement.notionRef
+        )
 
         const announcementToSend = {
             ...announcement._doc,
-            blockMap: response.data
+            blockMap: response.data,
         }
 
         return res.status(200).json({

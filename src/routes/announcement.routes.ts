@@ -35,4 +35,3 @@ router.get(
 )
 
 export default router
-// cd9aba3c18ac44ada10bc9df2f728595

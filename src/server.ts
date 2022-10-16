@@ -22,6 +22,6 @@ mongoose
             console.log('Example app listening on port 3000!')
         })
     })
-    .catch((err) => {
-        throw new Error(err)
+    .catch((err: any) => {
+        console.log(err)
     })
